@@ -3,7 +3,7 @@ import time
 import random
 
 # Server configuration
-SERVER_URL = "http://yourserver.com/api/data"  # Replace with your server's URL
+SERVER_URL = "http://localhost:5001/api/data"  # Replace with your server's URL
 
 # Function to simulate heart rate and car velocity
 def generate_data():

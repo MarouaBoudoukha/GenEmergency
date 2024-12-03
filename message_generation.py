@@ -11,7 +11,7 @@ load_dotenv()
 # Configuration Azure OpenAI
 openai.api_type = "azure"
 openai.api_key = os.getenv("AZURE_OPENAI_API_KEY")
-openai.azure_endpoint = os.getenv("AZURE_OPENAI_API_BASE")
+openai.api_base = os.getenv("AZURE_OPENAI_API_BASE")
 openai.api_version = os.getenv("AZURE_OPENAI_API_VERSION")
 
 # Fonction pour générer le texte d'urgence en fonction du type d'urgence
@@ -45,8 +45,8 @@ def generer_texte_urgence(donnees_accident):
                          f"La gravité est {gravite}. Génère un message d'urgence clair et concis pour les services de secours.")
 
     try:
-        response = openai.ChatCompletion(
-            engine="gpt-4o",
+        response = openai.ChatCompletion.create(
+            engine="gpt-4",
             messages=[
                 {"role": "system", "content": "You are a helpful assistant that generates emergency messages based on input data."},
                 {"role": "user", "content": prompt}
@@ -56,7 +56,7 @@ def generer_texte_urgence(donnees_accident):
             n=1,
             stop=None
         )
-        texte_urgence = response.choices[0].text.strip()
+        texte_urgence = response.choices[0].message.content.strip()
         print(f"Texte d'urgence généré : {texte_urgence}")
         return texte_urgence
     except Exception as e:

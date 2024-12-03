@@ -1,12 +1,14 @@
 from flask import Flask, jsonify, request
 import requests
+from flask_cors import CORS
 
 app = Flask(__name__)
 
-# Example endpoint that returns a simple message # Example endpoint
-@app.route('/hello', methods=['GET'])
-def hello():
-    return jsonify(message="Hello, World!")
+CORS(app)
+
+latitude = 0.0
+longitude = 0.0
+heart_rate = 0
 
 # Endpoint to get the location of a phone # Another endpoint with parameters
 @app.route('/locate/<phone>', methods=['GET'])
@@ -14,7 +16,8 @@ def greet(phone):
     client_id = 'ZzY7UmVlAntH292fkTk4LXBJt9buTd3z'
     client_secret = 'anhlnJYM6CAEs27uma7DXtz3TMsoUXaHEQBbQmJUEAvc'
     scope = "" # Scope for the API (can be empty)
-    return call_api(get_access_token(client_id,client_secret,""), phone)
+    response = call_api(get_access_token(client_id,client_secret,""), phone)
+    return response
 
 # Function to obtain an OAuth access token
 def get_access_token(client_id, client_secret, scope):
@@ -46,16 +49,36 @@ def call_api(access_token, phone_number):
     response = requests.post(api_url, headers=headers, json=data) # POST request to get the location
     return response.json()
 
+@app.route('/api/data', methods=['POST'])
+def receive_data():
+    # Get JSON data from the request
+    global heart_rate
+    global latitude
+    global longitude
 
-# POST endpoint
-# @app.route('/add', methods=['POST'])
-# def add():
-    # data = request.json
-    # x = data.get('x')
-    # y = data.get('y')
-    # if x is not None and y is not None:
-        # return jsonify(result=x + y)
-    # return jsonify(error="Please provide both 'x' and 'y'"), 400
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No data received"}), 400
 
-if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5004)
+    # Log the received heart rate # Log the received data
+    heart_rate = data.get('heart_rate')
+    
+    if heart_rate < 40:
+        response = requests.get("http://localhost:5001/locate/+33699901032").json()
+        latitude = response['area']['center']['latitude']
+        longitude = response['area']['center']['longitude']
+        print(response)
+
+    return jsonify({"message": "Data received successfully"}),  200
+
+@app.route('/position')
+def position():
+    return jsonify({'latitude': latitude, 'longitude': longitude})
+
+@app.route('/heart')
+def heart():
+    return {'heart': heart_rate}
+
+if __name__ == "__main__":
+    # Run the server on localhost at port 5001 # Run the server on localhost at port 5000
+    app.run(host="0.0.0.0", port=5001)

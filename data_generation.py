@@ -5,11 +5,15 @@ import random
 # Server configuration
 SERVER_URL = "http://localhost:5001/api/data"  # Replace with your server's URL
 
+isAttack = False
+
 # Function to simulate heart rate and car velocity
 def generate_data():
+    global isAttack  # Declare isAttack as a global variable
     # Simulate normal heart rate (60–100 bpm) with occasional very low BPM (30–50 bpm)
-    if random.random() < 0.1:  # 10% chance for very low BPM
-        heart_rate = random.randint(30, 50)
+    if isAttack or random.random() < 0.1:  # 10% chance for very low BPM
+        heart_rate = random.randint(10, 40)
+        isAttack = True
     else:
         heart_rate = random.randint(60, 100)
     
@@ -17,9 +21,7 @@ def generate_data():
     car_velocity = round(random.uniform(0, 120), 2)
     
     return {
-        "heart_rate": heart_rate,
-        "car_velocity": car_velocity,
-        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")  # Current timestamp
+        "heart_rate": heart_rate
     }
 
 # Function to send data to the server

@@ -55,4 +55,4 @@ def add():
     return jsonify(error="Please provide both 'x' and 'y'"), 400
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5004)

@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+import requests
 
 app = Flask(__name__)
 
@@ -11,7 +12,9 @@ def receive_data():
         return jsonify({"error": "No data received"}), 400
 
     # Log the received data
-    print(f"Received data: {data}")
+    print(f"Heart rate: {data.get('heart_rate')}, Car velocity: {data.get('car_velocity')}")
+    if data.get('heart_rate') < 50 or data.get('car_velocity') == 0:
+        print(requests.get("http://127.0.0.1:5004/locate/+33699901032").json())
 
     # Return a success response
     return jsonify({"message": "Data received successfully"}), 200
